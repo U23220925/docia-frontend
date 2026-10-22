@@ -24,7 +24,7 @@ async function iniciarSesion() {
   try {
     const { data } = await api.post('/usuarios/login', { correo: correo.value, password: password.value });
     localStorage.setItem('usuario', JSON.stringify(data));
-    router.push('/documentos');
+    router.push('/dashboard');
   } catch (e) {
     error.value = 'Credenciales incorrectas';
   }
