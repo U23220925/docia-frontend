@@ -19,6 +19,7 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../services/api';
 
+
 const route = useRoute();
 const idProyecto = route.query.idProyecto;
 const pregunta = ref('');
