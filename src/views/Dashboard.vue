@@ -6,6 +6,7 @@
       <strong>{{ p.nombre }}</strong> ({{ p.codigo }})
       <p>Documentos: {{ conteos[p.id] ?? '...' }}</p>
       <router-link :to="`/documentos?idProyecto=${p.id}`">Ver documentos</router-link>
+      <router-link :to="`/chat?idProyecto=${p.id}`">Consultar</router-link>
     </div>
   </div>
 </template>
