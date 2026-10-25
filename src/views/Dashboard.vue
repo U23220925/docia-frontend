@@ -20,6 +20,7 @@
         <router-link p to="/usuarios">Administración de Usuarios</router-link>
         <span style="margin: 0 10px; color: #ccc;">|</span>
         <router-link to="/empresas">Gestión de Empresas</router-link>
+        <router-link to="/auditoria">Auditoría</router-link>
       </div>
     </div>
   </div>

@@ -27,11 +27,11 @@ function onFileChange(e) {
 
 async function subir() {
   error.value = null;
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
   const formData = new FormData();
   formData.append('archivo', archivo.value);
   try {
-    // Envía el archivo enlazándolo exactamente al proyecto seleccionado
-    const { data } = await api.post(`/documentos?idProyecto=${idProyecto}`, formData, {
+    const { data } = await api.post(`/documentos?idProyecto=${idProyecto}&idUsuario=${usuario.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     resultado.value = data;
