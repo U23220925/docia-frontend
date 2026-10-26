@@ -1,0 +1,147 @@
+:root {
+  /* === Color === */
+  --docia-navy: #0E2A47;
+  --docia-navy-suave: #163352;
+  --docia-paper: #FAFAF8;
+  --docia-ink: #16202A;
+  --docia-ink-suave: #5B6B7A;
+  --docia-borde: #D8DEE3;
+  --docia-cyan: #2E86AB;
+  --docia-cyan-suave: #DCEEF5;
+  --docia-amber: #C98A2C;
+  --docia-amber-suave: #FBF0DD;
+  --docia-verde: #2E7D46;
+  --docia-verde-suave: #E3F1E6;
+  --docia-rojo: #B3482F;
+  --docia-rojo-suave: #FAE6E0;
+
+  /* === Tipografia === */
+  --fuente-titulo: 'Space Grotesk', sans-serif;
+  --fuente-texto: 'IBM Plex Sans', sans-serif;
+  --fuente-datos: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  color: var(--docia-ink);
+  background: var(--docia-paper);
+  background-image:
+    linear-gradient(var(--docia-borde) 1px, transparent 1px),
+    linear-gradient(90deg, var(--docia-borde) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-titulo);
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--docia-navy);
+}
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+
+/* === Layout principal === */
+.docia-shell { display: flex; min-height: 100vh; }
+
+.docia-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: var(--docia-navy); color: var(--docia-paper);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; z-index: 10;
+  font-family: var(--fuente-titulo); font-weight: 600; letter-spacing: 0.3px;
+}
+.docia-topbar .empresa {
+  font-family: var(--fuente-datos); font-weight: 400; font-size: 0.85rem;
+  background: var(--docia-navy-suave); padding: 4px 10px; border-radius: 3px;
+}
+
+.docia-sidebar {
+  position: fixed; top: 56px; left: 0; bottom: 0; width: 200px;
+  background: var(--docia-navy); padding: 20px 0;
+}
+.docia-sidebar a {
+  display: block; padding: 10px 20px; color: #C7D2DB; text-decoration: none;
+  border-left: 3px solid transparent; font-size: 0.95rem;
+}
+.docia-sidebar a:hover { color: var(--docia-paper); }
+.docia-sidebar a.activo {
+  color: var(--docia-paper); border-left-color: var(--docia-cyan);
+  background: var(--docia-navy-suave);
+}
+.docia-sidebar .separador { border-top: 1px solid var(--docia-navy-suave); margin: 12px 20px; }
+
+.docia-contenido { margin-left: 200px; padding: 80px 32px 32px; flex: 1; max-width: 920px; }
+
+/* === Paneles (hojas) === */
+.docia-plano {
+  background: var(--docia-paper);
+  border: 1px solid var(--docia-borde);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+/* === Botones === */
+.docia-btn {
+  font-family: var(--fuente-texto); font-weight: 500; font-size: 0.9rem;
+  padding: 9px 18px; border-radius: 4px; border: 1px solid transparent;
+  cursor: pointer; transition: background 0.15s ease;
+}
+.docia-btn-primario { background: var(--docia-cyan); color: #fff; }
+.docia-btn-primario:hover { background: #256F8C; }
+.docia-btn-primario:disabled { background: var(--docia-borde); color: var(--docia-ink-suave); cursor: not-allowed; }
+.docia-btn-secundario { background: transparent; border-color: var(--docia-ink-suave); color: var(--docia-ink); }
+.docia-btn-secundario:hover { background: var(--docia-cyan-suave); border-color: var(--docia-cyan); }
+
+/* === Formularios === */
+.docia-input {
+  font-family: var(--fuente-texto); font-size: 0.95rem;
+  padding: 9px 12px; border: 1px solid var(--docia-borde); border-radius: 4px;
+  width: 100%; margin-bottom: 12px; background: #fff; color: var(--docia-ink);
+}
+.docia-input:focus { outline: none; border-color: var(--docia-cyan); box-shadow: 0 0 0 3px var(--docia-cyan-suave); }
+
+/* === Tablas === */
+.docia-tabla { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.docia-tabla th {
+  text-align: left; font-family: var(--fuente-texto); font-weight: 600;
+  color: var(--docia-ink-suave); border-bottom: 2px solid var(--docia-borde);
+  padding: 8px 10px; font-size: 0.82rem;
+}
+.docia-tabla td { padding: 10px; border-bottom: 1px solid var(--docia-borde); }
+
+/* === Estados (badges) === */
+.docia-estado {
+  display: inline-block; font-family: var(--fuente-datos); font-size: 0.78rem;
+  padding: 3px 8px 3px 10px; border-left: 3px solid; border-radius: 2px;
+}
+.docia-estado-indexado { background: var(--docia-verde-suave); border-color: var(--docia-verde); color: #1E5A30; }
+.docia-estado-procesando { background: var(--docia-amber-suave); border-color: var(--docia-amber); color: #8F621E; }
+.docia-estado-error { background: var(--docia-rojo-suave); border-color: var(--docia-rojo); color: #8A3621; }
+.docia-estado-activo { background: var(--docia-verde-suave); border-color: var(--docia-verde); color: #1E5A30; }
+.docia-estado-inactivo { background: #ECECE9; border-color: var(--docia-ink-suave); color: var(--docia-ink-suave); }
+
+/* === Citas documentales (el unico acento con caracter propio) === */
+.docia-cita {
+  font-family: var(--fuente-datos); font-size: 0.82rem;
+  display: inline-block; margin: 4px 6px 0 0;
+  padding: 5px 10px; background: #fff;
+  border: 1px solid var(--docia-cyan); border-left: 3px solid var(--docia-cyan);
+  border-radius: 2px; color: var(--docia-navy); cursor: pointer;
+}
+.docia-cita:hover { background: var(--docia-cyan-suave); }
+
+/* === Burbujas de chat === */
+.docia-mensaje-usuario, .docia-mensaje-asistente {
+  display: inline-block; max-width: 75%; padding: 10px 14px;
+  border-radius: 4px; margin-bottom: 4px; font-size: 0.95rem;
+}
+.docia-mensaje-usuario { background: var(--docia-cyan); color: #fff; }
+.docia-mensaje-asistente { background: #fff; border: 1px solid var(--docia-borde); }
+.docia-mensaje-asistente.no-corroborado { background: var(--docia-amber-suave); border-color: var(--docia-amber); }

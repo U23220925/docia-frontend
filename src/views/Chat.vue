@@ -1,29 +1,39 @@
 <template>
-  <div>
-    <h2>Chat con el asistente IA</h2>
-    <button v-if="idConversacion" @click="exportar">Exportar hilo a PDF</button>
+  <div class="docia-shell-layout">
+    <DociaShell />
+    
+    <div class="docia-contenido">
+      <h2>Chat con el asistente IA</h2>
+      <button v-if="idConversacion" class="docia-btn docia-btn-secundario" @click="exportar" style="margin-bottom:16px;">
+        Exportar hilo a PDF
+      </button>
 
-    <div v-for="(m, i) in mensajes" :key="i" :style="{ textAlign: m.rol === 'USUARIO' ? 'right' : 'left' }">
-      <p :style="{ background: m.corroborado === false ? '#fff3cd' : '#f1f1f1', display: 'inline-block', padding: '8px 12px', borderRadius: '8px' }">
-        {{ m.contenido }}
-      </p>
-      <div v-if="m.citas && m.citas.length">
-        <span v-for="c in m.citas" :key="c.idFragmento" style="font-size: 0.85em;">
-          <button @click="verCita(c.idFragmento)">
-            {{ c.nombreArchivo }}{{ c.pagina ? ' · Pág. ' + c.pagina : ' · frag. ' + c.orden }}
-          </button>
-        </span>
+      <div class="docia-plano" v-if="mensajes.length > 0">
+        <div v-for="(m, i) in mensajes" :key="i" :style="{ textAlign: m.rol === 'USUARIO' ? 'right' : 'left', marginBottom: '10px' }">
+          <p :class="m.rol === 'USUARIO' ? 'docia-mensaje-usuario' : ['docia-mensaje-asistente', { 'no-corroborado': m.corroborado === false }]">
+            {{ m.contenido }}
+          </p>
+          <div v-if="m.citas && m.citas.length" style="margin-top: 4px;">
+            <!-- CORRECCIÓN: Botones de cita utilizando la clase técnica docia-cita en vez de un span -->
+            <button v-for="c in m.citas" :key="c.idFragmento" class="docia-cita" @click="verCita(c.idFragmento)">
+              {{ c.nombreArchivo }}{{ c.pagina ? ' · pág. ' + c.pagina : ' · frag. ' + c.orden }}
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <input v-model="pregunta" placeholder="Escribe tu consulta técnica..." @keyup.enter="enviar" />
-    <button @click="enviar" :disabled="!pregunta">Enviar</button>
+      <div style="display:flex; gap:8px; margin-top: 16px;">
+        <input v-model="pregunta" class="docia-input" style="margin-bottom:0;" placeholder="Escribe tu consulta técnica..." @keyup.enter="enviar" />
+        <button class="docia-btn docia-btn-primario" @click="enviar" :disabled="!pregunta">Enviar</button>
+      </div>
 
-    <div v-if="citaVisible" style="border:1px solid #ccc; margin-top:15px; padding:10px;">
-      <strong>{{ citaVisible.nombreArchivo }}</strong>
-      <span v-if="citaVisible.pagina"> — página {{ citaVisible.pagina }}</span>
-      <button @click="citaVisible = null" style="float:right;">Cerrar</button>
-      <p>{{ citaVisible.texto }}</p>
+      <!-- Detalle de la cita documental seleccionada -->
+      <div v-if="citaVisible" class="docia-plano" style="margin-top:16px; border-left:3px solid var(--docia-cyan);">
+        <strong>{{ citaVisible.nombreArchivo }}</strong>
+        <span v-if="citaVisible.pagina" style="color:var(--docia-ink-suave);"> — página {{ citaVisible.pagina }}</span>
+        <button class="docia-btn docia-btn-secundario" style="float:right; padding:3px 10px;" @click="citaVisible = null">Cerrar</button>
+        <p style="font-family:var(--fuente-datos); font-size:0.88rem; margin-top:10px; clear:both;">{{ citaVisible.texto }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -32,6 +42,7 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../services/api';
+import DociaShell from '../components/DociaShell.vue';
 
 const route = useRoute();
 const idProyecto = route.query.idProyecto;
@@ -43,6 +54,7 @@ const mensajes = ref([]);
 const citaVisible = ref(null);
 
 async function enviar() {
+  if (!pregunta.value.trim()) return;
   const texto = pregunta.value;
   mensajes.value.push({ rol: 'USUARIO', contenido: texto });
   pregunta.value = '';
@@ -57,12 +69,23 @@ async function enviar() {
   }
 }
 
-async function exportar() {
+async function verCita(idFragmento) {
   try {
-    // CORRECCIÓN: Apuntamos al nuevo endpoint de exportación del ChatController
-    const response = await api.get(`/chat/exportar/${idConversacion.value}`, { responseType: 'blob' });
-    
-    // Convertimos la respuesta binaria en un archivo descargable
+    const { data } = await api.get(`/fragmentos/${idFragmento}`);
+    citaVisible.value = { 
+      nombreArchivo: data.documento?.nombreArchivo || 'Archivo desconocido', 
+      pagina: data.pagina, 
+      texto: data.texto 
+    };
+  } catch (e) {
+    console.error("Error al obtener el fragmento de la cita:", e);
+  }
+}
+
+async function exportar() {
+  if (!idConversacion.value) return;
+  try {
+    const response = await api.get(`/conversaciones/${idConversacion.value}/exportar`, { responseType: 'blob' });
     const blob = new Blob([response.data], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -71,13 +94,11 @@ async function exportar() {
     document.body.appendChild(link);
     link.click();
     
-    // Limpieza de memoria
+    // Limpieza óptima de memoria en el navegador
     link.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("Error al exportar la conversación a PDF:", error);
-    alert("No se pudo exportar el hilo de conversación en este momento.");
+    console.error("Error al exportar la conversación:", error);
   }
 }
-
 </script>

@@ -1,61 +1,81 @@
 <template>
-  <div style="padding: 20px; font-family: sans-serif;">
-    <h2>Bienvenido</h2>
-    <button @click="crearProyecto" style="margin-bottom: 20px;">+ Nuevo proyecto</button>
+  <DociaShell />
+  <div class="docia-contenido">
+    <h2>Bienvenido, {{ usuario?.nombre || 'Usuario' }}</h2>
+    <button class="docia-btn docia-btn-secundario" @click="crearProyecto">+ Nuevo proyecto</button>
     
-    <div v-for="p in proyectos" :key="p.id" style="border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 6px; max-width: 500px;">
-      <h3 style="margin: 0 0 10px 0;">{{ p.nombre }} ({{ p.codigo }})</h3>
-      <p style="margin: 5px 0 15px 0; color: #555;">Documentos: {{ conteos[p.id] ?? '...' }}</p>
-      
-      <!-- Secciones de acción del proyecto separadas -->
-      <div style="margin-bottom: 10px;">
-        <router-link :to="`/documentos?idProyecto=${p.id}`" style="margin-right: 15px;">Ver documentos</router-link>
-        <router-link :to="`/chat?idProyecto=${p.id}`">Consultar con IA</router-link>
-      </div>
-      
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;" />
-      
-      <!-- Menú global de navegación -->
-      <div style="font-size: 0.9em;">
-        <router-link p to="/usuarios">Administración de Usuarios</router-link>
-        <span style="margin: 0 10px; color: #ccc;">|</span>
-        <router-link to="/empresas">Gestión de Empresas</router-link>
-        <router-link to="/auditoria">Auditoría</router-link>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:16px;">
+      <div class="docia-plano" v-for="p in proyectos" :key="p.id">
+        <h3>{{ p.nombre }}</h3>
+        <p style="color:var(--docia-ink-suave); font-size:0.88rem;">
+          {{ p.codigo }} · {{ conteos[p.id] !== undefined ? conteos[p.id] : '...' }} documentos
+        </p>
+        <router-link :to="`/documentos?idProyecto=${p.id}`" class="docia-btn docia-btn-secundario" style="margin-right:8px;">Documentos</router-link>
+        <router-link :to="`/chat?idProyecto=${p.id}`" class="docia-btn docia-btn-primario">Consultar</router-link>
       </div>
     </div>
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
+import DociaShell from '../components/DociaShell.vue';
+
+
+const usuario = ref(JSON.parse(localStorage.getItem('usuario') || '{}'));
 
 const proyectos = ref([]);
 const conteos = ref({});
 
 async function cargarProyectos() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const idEmpresa = usuario.empresa?.id;
-  const { data } = await api.get(idEmpresa ? `/proyectos?idEmpresa=${idEmpresa}` : '/proyectos');
-  proyectos.value = data;
-  for (const p of data) {
-    const { data: c } = await api.get(`/proyectos/${p.id}/conteo-documentos`);
-    conteos.value[p.id] = c;
+  try {
+    const idEmpresa = usuario.value?.empresa && typeof usuario.value.empresa === 'object'
+      ? usuario.value.empresa.id
+      : (usuario.value?.idEmpresa || null);
+
+    const endpoint = idEmpresa ? `/proyectos?idEmpresa=${idEmpresa}` : '/proyectos';
+    const { data } = await api.get(endpoint);
+    proyectos.value = data;
+
+    for (const p of data) {
+      api.get(`/documentos?idProyecto=${p.id}`)
+        .then(({ data: docs }) => {
+          if (Array.isArray(docs)) {
+            conteos.value[p.id] = docs.length;
+          } else {
+            conteos.value[p.id] = 0;
+          }
+        })
+        .catch(() => {
+          conteos.value[p.id] = 0;
+        });
+    }
+  } catch (e) {
+    console.error("Error al cargar los proyectos o actualizar sus contadores:", e);
   }
 }
 
-// Única función unificada que envía la información estructurada de acuerdo a tu DTO en el Backend
+
 async function crearProyecto() {
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-  const idEmpresa = usuario.empresa?.id;
+  const idEmpresa = usuario.value?.empresa && typeof usuario.value.empresa === 'object'
+    ? usuario.value.empresa.id
+    : (usuario.value?.idEmpresa || null);
+
   const nombre = prompt('Nombre del proyecto:');
-  const codigo = prompt('Código:');
+  const codigo = prompt('Código del proyecto:');
+  
   if (nombre && codigo) {
-    await api.post('/proyectos', { nombre, codigo, idEmpresa });
-    cargarProyectos();
+    try {
+      await api.post('/proyectos', { nombre, codigo, idEmpresa });
+      await cargarProyectos();
+    } catch (e) {
+      console.error("Error al registrar el proyecto:", e);
+    }
   }
 }
 
-onMounted(cargarProyectos);
+onMounted(() => {
+  cargarProyectos();
+});
 </script>

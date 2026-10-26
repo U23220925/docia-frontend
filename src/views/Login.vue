@@ -1,11 +1,15 @@
 <template>
-  <div style="max-width: 320px; margin: 60px auto;">
-    <h2>DocIA</h2>
-    <p>Tus expedientes técnicos, en lenguaje natural</p>
-    <input v-model="correo" placeholder="Correo electrónico" />
-    <input v-model="password" type="password" placeholder="Contraseña" />
-    <button @click="iniciarSesion">Iniciar sesión</button>
-    <p v-if="error" style="color:red">{{ error }}</p>
+  <div style="min-height:100vh; display:flex; align-items:center; justify-content:center;">
+    <div class="docia-plano" style="width:360px;">
+      <h2 style="text-align:center;">DocIA</h2>
+      <p style="text-align:center; color:var(--docia-ink-suave); margin-bottom:20px; font-size:0.9rem;">
+        Tus expedientes técnicos, en lenguaje natural
+      </p>
+      <input class="docia-input" v-model="correo" placeholder="Correo electrónico" />
+      <input class="docia-input" v-model="password" type="password" placeholder="Contraseña" />
+      <button class="docia-btn docia-btn-primario" style="width:100%;" @click="iniciarSesion">Iniciar sesión</button>
+      <p v-if="error" style="color:var(--docia-rojo); font-size:0.85rem; margin-top:10px;">{{ error }}</p>
+    </div>
   </div>
 </template>
 
